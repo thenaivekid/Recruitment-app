@@ -1,0 +1,92 @@
+@baseUrl = http://localhost:8000
+
+### 1. Health Check
+GET {{baseUrl}}/health
+
+
+### 2. Register a new Reviewer
+# The API will ignore any 'role' field passed in and force it to 'reviewer'
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "demo_reviewer@techkraft.com",
+    "password": "DemoPassword123!"
+}
+
+
+### 3. Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "admin@techkraft.com",
+    "password": "Admin1234!"
+}
+
+### (Extracts token from previous admin login)
+@adminToken = {{loginAdmin.response.body.access_token}}
+
+
+### 4. Create a new Candidate (Admin Only)
+# @name createCandidate
+POST {{baseUrl}}/candidates
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+    "name": "Jane Example",
+    "email": "jane@example.com",
+    "role_applied": "Senior Frontend Engineer",
+    "skills": ["React", "CSS", "Vite", "JavaScript"],
+    "internal_notes": "Referred by CTO"
+}
+
+### (Extracts the ID from the newly created candidate)
+@newCandidateId = {{createCandidate.response.body.id}}
+
+
+### 5. List Candidates
+# Test pagination and filtering
+GET {{baseUrl}}/candidates?limit=5&status=new
+Authorization: Bearer {{adminToken}}
+
+
+### 6. Get Candidate Detail
+GET {{baseUrl}}/candidates/{{newCandidateId}}
+Authorization: Bearer {{adminToken}}
+
+
+### 7. Submit a Score
+POST {{baseUrl}}/candidates/{{newCandidateId}}/scores
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+    "category": "Technical",
+    "score": 5,
+    "note": "Answered all React questions perfectly."
+}
+
+
+### 8. Generate Mock AI Summary
+POST {{baseUrl}}/candidates/{{newCandidateId}}/summary
+Authorization: Bearer {{adminToken}}
+
+
+### 9. Update Candidate Details (Admin Only)
+# Change status to hired or add internal notes
+PATCH {{baseUrl}}/candidates/{{newCandidateId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+    "status": "hired",
+    "internal_notes": "Accepted offer on Monday."
+}
+
+
+### 10. Test SSE Stream Endpoint (Stretch Goal)
+GET {{baseUrl}}/candidates/{{newCandidateId}}/stream
+Authorization: Bearer {{adminToken}}
