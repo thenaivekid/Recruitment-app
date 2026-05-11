@@ -33,8 +33,8 @@ Internal candidate scoring and review dashboard for TechKraft's recruitment work
 
 ```bash
 # 1. Clone and enter the project
-git clone <your-repo-url>
-cd recruitment-dashboard
+git clone https://github.com/thenaivekid/Recruitment-app.git
+cd Recruitment-app
 
 # 2. Create your .env from the example
 cp .env.example .env
